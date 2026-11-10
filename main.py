@@ -1,11 +1,10 @@
 import os
 import json
-import time
 import asyncio
 import requests
 import edge_tts
 import google.generativeai as genai
-from moviepy.editor import ImageClip, AudioFileClip
+from moviepy import ImageClip, AudioFileClip
 
 # 1. Cấu hình Gemini API từ Secret GitHub
 GEMINI_KEY = os.getenv("GEMINI_API_KEY")
@@ -45,7 +44,7 @@ def download_image(prompt, filename):
     """Tạo ảnh 3D dọc 9:16 miễn phí 100% bằng Pollinations"""
     clean_prompt = requests.utils.quote(prompt)
     url = f"https://image.pollinations.ai/prompt/{clean_prompt}?width=720&height=1280&nologo=true"
-    res = requests.get(url)
+    res = requests.get(url, timeout=30)
     if res.status_code == 200:
         with open(filename, 'wb') as f:
             f.write(res.content)
@@ -77,8 +76,8 @@ def make_short_video():
     # 3. Dựng video bằng MoviePy
     print("Đang ghép video...")
     audio_clip = AudioFileClip(audio_file)
-    video_clip = ImageClip(img_file).set_duration(audio_clip.duration + 1)
-    video_clip = video_clip.set_audio(audio_clip)
+    video_clip = ImageClip(img_file).with_duration(audio_clip.duration + 1)
+    video_clip = video_clip.with_audio(audio_clip)
 
     output_file = "kids_short.mp4"
     video_clip.write_videofile(output_file, fps=24, codec="libx264", audio_codec="aac")
