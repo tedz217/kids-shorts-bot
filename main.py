@@ -28,7 +28,7 @@ def generate_kids_content():
     """
     try:
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-3.8-flash',
             contents=prompt
         )
         text = response.text.replace("```json", "").replace("```", "").strip()
@@ -83,7 +83,4 @@ def make_short_video():
 
     output_file = "kids_short.mp4"
     video_clip.write_videofile(output_file, fps=24, codec="libx264", audio_codec="aac")
-    print(f"SUCCESS: Video đã xuất thành công tại {output_file}!")
-
-if __name__ == "__main__":
-    make_short_video()
+    print(
