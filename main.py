@@ -83,4 +83,7 @@ def make_short_video():
 
     output_file = "kids_short.mp4"
     video_clip.write_videofile(output_file, fps=24, codec="libx264", audio_codec="aac")
-    print(
+    print(f"SUCCESS: Video đã xuất thành công tại {output_file}!")
+
+if __name__ == "__main__":
+    make_short_video()
