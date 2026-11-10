@@ -3,16 +3,16 @@ import json
 import asyncio
 import requests
 import edge_tts
-import google.generativeai as genai
+from google import genai
 from moviepy import ImageClip, AudioFileClip
 
-# 1. Cấu hình Gemini API từ Secret GitHub
+# 1. Cấu hình Gemini Client từ Secret
 GEMINI_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_KEY:
     print("LỖI: Chưa tìm thấy GEMINI_API_KEY trong Secrets!")
     exit(1)
 
-genai.configure(api_key=GEMINI_KEY)
+client = genai.Client(api_key=GEMINI_KEY)
 
 def generate_kids_content():
     """Gọi Gemini lấy kịch bản đố vui hoạt hình cho bé (tiếng Anh)"""
@@ -27,12 +27,14 @@ def generate_kids_content():
     }
     """
     try:
-        model = genai.GenerativeModel('gemini-1.5-flash')
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt
+        )
         text = response.text.replace("```json", "").replace("```", "").strip()
         return json.loads(text)
     except Exception as e:
-        print(f"Lỗi gọi Gemini hoặc rate limit: {e}")
+        print(f"Lỗi gọi Gemini: {e}")
         return None
 
 async def text_to_speech(text, filename):
@@ -41,10 +43,10 @@ async def text_to_speech(text, filename):
     await communicate.save(filename)
 
 def download_image(prompt, filename):
-    """Tạo ảnh 3D dọc 9:16 miễn phí 100% bằng Pollinations"""
+    """Tạo ảnh 3D dọc 9:16 miễn phí bằng Pollinations"""
     clean_prompt = requests.utils.quote(prompt)
     url = f"https://image.pollinations.ai/prompt/{clean_prompt}?width=720&height=1280&nologo=true"
-    res = requests.get(url, timeout=30)
+    res = requests.get(url, timeout=45)
     if res.status_code == 200:
         with open(filename, 'wb') as f:
             f.write(res.content)
